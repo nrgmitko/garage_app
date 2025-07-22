@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Your Cars{% endblock %}
+{% block content %}
+<h2>Your Cars</h2>
+<a href="{% url 'car-add' %}" class="btn btn-primary mb-3">Add New Car</a>
+
+{% if cars %}
+    <ul class="list-group">
+        {% for car in cars %}
+<li class="list-group-item d-flex justify-content-between align-items-center">
+    {{ car.make }} {{ car.model }} ({{ car.year }}) — VIN: {{ car.vin }}
+    <span>
+        <a href="{% url 'car-edit' car.pk %}" class="btn btn-sm btn-warning me-2">Edit</a>
+        <a href="{% url 'car-delete' car.pk %}" class="btn btn-sm btn-danger">Delete</a>
+    </span>
+</li>
+
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No cars found.</p>
+{% endif %}
+{% endblock %}

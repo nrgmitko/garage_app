@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Your Dashboard</h2>
+<p>Welcome, {{ user.username }}! This page is for logged-in users only.</p>
+
+<hr>
+
+<a href="{% url 'car-list' %}" class="btn btn-primary mt-2">Manage Your Cars</a>
+    <a href="{% url 'request-list' %}" class="btn btn-secondary mt-2">View Maintenance Requests</a>
+
+
+{% endblock %}

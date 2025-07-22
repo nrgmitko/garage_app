@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Staff Dashboard{% endblock %}
+{% block content %}
+
+<h2>All Maintenance Requests</h2>
+
+{% if requests %}
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Customer</th>
+            <th>Car</th>
+            <th>Service</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Approved?</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for req in requests %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="request_id" value="{{ req.id }}">
+            <tr>
+                <td>{{ req.car.owner.username }}</td>
+                <td>{{ req.car.make }} {{ req.car.model }} ({{ req.car.vin }})</td>
+                <td>{{ req.service.name }}</td>
+                <td>{{ req.requested_date }}</td>
+                <td>
+                    <select name="status" class="form-select form-select-sm">
+                        {% for option in status_choices %}
+                            <option value="{{ option.0 }}" {% if option.0 == req.status %}selected{% endif %}>
+                                {{ option.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" name="is_approved" {% if req.is_approved %}checked{% endif %}>
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-sm btn-success">Update</button>
+                </td>
+            </tr>
+        </form>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No requests found.</p>
+{% endif %}
+
+{% endblock %}

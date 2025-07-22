@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Welcome to GarageX{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1>Welcome to GarageX</h1>
+    <p>Your trusted place for reliable car maintenance and service booking.</p>
+</div>
+
+<h3 class="mb-3">What Our Customers Say</h3>
+
+{% if reviews %}
+    <div class="row">
+        {% for r in reviews %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ r.user.username }} – {{ r.rating }}★</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+    {{ r.request.car.make }} {{ r.request.car.model }} – {{ r.request.car.year }} {{ r.request.service.name }}
+</h6>
+                        <p class="card-text">{{ r.comment|linebreaks }}</p>
+                        <p class="text-muted small">{{ r.created_at|date:"F j, Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">No reviews available yet.</p>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}My Requests{% endblock %}
+{% block content %}
+<h2>Your Maintenance Requests</h2>
+<a href="{% url 'request-add' %}" class="btn btn-primary mb-3">New Request</a>
+
+{% if requests %}
+    <ul class="list-group">
+        {% for r in requests %}
+        <li class="list-group-item">
+            {{ r.car }} — {{ r.service.name }} on {{ r.requested_date }}<br>
+            Status: <strong>{{ r.status }}</strong> {% if r.is_approved %}(Approved){% endif %}
+
+            {% if r.status == "Pending" and not r.is_approved %}
+                <div class="mt-2">
+                    <a href="{% url 'request-edit' r.pk %}" class="btn btn-sm btn-warning me-2">Edit</a>
+                    <a href="{% url 'request-delete' r.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </div>
+            {% endif %}
+
+{% if r.status == "Completed" and r.pk %}
+    {% if not r.review_set.exists %}
+        <div class="mt-2">
+            <a href="{% url 'request-review' r.pk %}" class="btn btn-sm btn-info">Leave a Review</a>
+        </div>
+    {% else %}
+        <p class="text-success mt-2">✓ Review Submitted</p>
+    {% endif %}
+{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No requests yet.</p>
+{% endif %}
+{% endblock %}

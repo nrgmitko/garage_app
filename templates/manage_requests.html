@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Manage Requests{% endblock %}
+{% block content %}
+<h2>All Maintenance Requests</h2>
+
+{% if requests %}
+    <ul class="list-group">
+        {% for r in requests %}
+            <li class="list-group-item">
+                {{ r.car }} - {{ r.service.name }} on {{ r.requested_date }}<br>
+                <strong>Status:</strong> {{ r.status }} | 
+                <strong>Approved:</strong> {{ r.is_approved }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No requests found.</p>
+{% endif %}
+{% endblock %}
