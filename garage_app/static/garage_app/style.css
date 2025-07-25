@@ -1,0 +1,122 @@
+.card {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  border-radius: 6px;
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+input, select, textarea {
+  border-radius: 6px !important;
+}
+
+.badge {
+  font-size: 0.8rem;
+  padding: 5px 10px;
+}
+
+.text-muted {
+  font-size: 0.9rem;
+}
+
+/* General button polish */
+.navbar .btn {
+    border-radius: 30px;
+    font-weight: 500;
+    padding: 5px 14px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* Ensures all cards are the same height */
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Makes the images fill their container proportionally */
+.service-img-wrapper {
+  flex-grow: 1; /* Allow the image wrapper to grow and fill available space */
+  height: 0;
+  padding-top: 60%; /* Aspect ratio control (works like 16:9 ratio, adjust as needed) */
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Card Body padding */
+.card-body {
+  padding: 1rem;
+}
+
+
+/* Profile & Dashboard (light-outline style) */
+.navbar .btn-outline-light {
+    border-color: #fff;
+    color: #fff;
+}
+.navbar .btn-outline-light:hover {
+    background-color: #fff;
+    color: #212529;
+}
+
+/* Staff Panel button (bright yellow feel) */
+.navbar .btn-warning {
+    background-color: #ffc107;
+    color: #000;
+    border: none;
+}
+.navbar .btn-warning:hover {
+    background-color: #e0a800;
+    color: #fff;
+}
+
+/* Logout button (clean red) */
+.navbar .btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+.navbar .btn-danger:hover {
+    background-color: #bb2d3b;
+}
+
+/* Register button (white, soft hover) */
+.navbar .btn-light {
+    color: #212529;
+    background-color: #f8f9fa;
+    border: none;
+}
+.navbar .btn-light:hover {
+    background-color: #e2e6ea;
+}
+
+/* Login button (outline white style) */
+.navbar .btn-outline-light {
+    background-color: transparent;
+}
+.border-dashed {
+    border: 2px dashed #ccc;
+    transition: background-color 0.3s ease;
+}
+
+.border-dashed:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+

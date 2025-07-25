@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login
@@ -5,10 +8,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import ListView, CreateView, TemplateView
 
-from garage_app.forms import CarForm, MaintenanceRequestForm, ReviewForm, ProfileUpdateForm
-from garage_app.models import Car, MaintenanceRequest, Review
+from garage_app.forms import CarForm, MaintenanceRequestForm, ReviewForm, ProfileUpdateForm, CustomUserCreationForm
+from garage_app.models import Car, MaintenanceRequest, Review, ServiceType
 
 
 def home_view(request):
@@ -17,13 +21,22 @@ def home_view(request):
 
 @login_required
 def dashboard_view(request):
-    if request.user.is_staff:
-        return redirect('staff-dashboard')
-    return render(request, 'dashboard.html')
+    cars = Car.objects.filter(owner=request.user)
+    requests = MaintenanceRequest.objects.filter(car__owner=request.user)
+
+    total_cars = cars.count()
+    total_requests = requests.count()
+    completed_requests = requests.filter(status="Completed").count()
+
+    return render(request, 'dashboard.html', {
+        'total_cars': total_cars,
+        'total_requests': total_requests,
+        'completed_requests': completed_requests,
+    })
 
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)  # auto-login after registration
@@ -33,23 +46,6 @@ def register_view(request):
     return render(request, 'register.html', {'form': form})
 
 
-@login_required
-def car_list_view(request):
-    cars = Car.objects.filter(owner=request.user)
-    return render(request, 'car_list.html', {'cars': cars})
-
-@login_required
-def car_create_view(request):
-    if request.method == 'POST':
-        form = CarForm(request.POST)
-        if form.is_valid():
-            car = form.save(commit=False)
-            car.owner = request.user
-            car.save()
-            return redirect('car-list')
-    else:
-        form = CarForm()
-    return render(request, 'car_form.html', {'form': form})
 
 @login_required
 def car_edit_view(request, pk):
@@ -99,25 +95,51 @@ def manage_requests_view(request):
 @staff_member_required
 def staff_dashboard_view(request):
     requests = MaintenanceRequest.objects.select_related('car', 'service', 'car__owner').order_by('-requested_date')
-    status_choices = MaintenanceRequest._meta.get_field('status').choices  # get choices here
+    status_choices = MaintenanceRequest._meta.get_field('status').choices
+
     if request.method == 'POST':
-        req_id = request.POST.get('request_id')
-        status = request.POST.get('status')
-        approved = request.POST.get('is_approved') == 'on'
+        req_id = request.POST.get("request_id")
+        new_status = request.POST.get("status")
+        is_approved = "is_approved" in request.POST
 
-        request_obj = MaintenanceRequest.objects.get(id=req_id)
-        request_obj.status = status
-        request_obj.is_approved = approved
-        request_obj.save()
-        return redirect('staff-dashboard')
+        try:
+            req = MaintenanceRequest.objects.select_related('car', 'service').get(id=req_id)
+        except MaintenanceRequest.DoesNotExist:
+            return redirect("staff-dashboard")
 
+        req.status = new_status
+        req.is_approved = is_approved
+        req.save()
 
+        # Append upgrade and adjust horsepower if completed, approved, and not basic
+        service = req.service
+        car = req.car
+
+        if new_status == "Completed" and is_approved and service and service.category != "Basic Maintenance":
+            upgrade_line = f"- {service.name} ({timezone.now().date()})"
+
+            # Add upgrade entry
+            if car.upgrades:
+                if upgrade_line not in car.upgrades:
+                    car.upgrades += f"\n{upgrade_line}"
+            else:
+                car.upgrades = upgrade_line
+
+            # Add horsepower if defined
+            if service.hp_gain:
+                if car.horsepower:
+                    car.horsepower += service.hp_gain
+                else:
+                    car.horsepower = service.hp_gain
+
+            car.save()
+
+        return redirect("staff-dashboard")
 
     return render(request, 'staff_dashboard.html', {
         'requests': requests,
         'status_choices': status_choices,
     })
-
 @login_required
 def request_edit_view(request, pk):
     req = get_object_or_404(MaintenanceRequest, pk=pk, car__owner=request.user)
@@ -163,7 +185,7 @@ class CarListView(ListView):
 
 class CarCreateView(CreateView):
     model = Car
-    fields = ['make', 'model', 'year', 'vin']
+    fields = ['make', 'model', 'year', 'vin','horsepower', 'image']
     template_name = 'car_form.html'
     success_url = reverse_lazy('car-list')
 
@@ -171,13 +193,6 @@ class CarCreateView(CreateView):
         form.instance.owner = self.request.user
         return super().form_valid(form)
 
-class MaintenanceRequestListView(ListView):
-    model = MaintenanceRequest
-    template_name = 'request_list.html'
-    context_object_name = 'requests'
-
-    def get_queryset(self):
-        return MaintenanceRequest.objects.filter(car__owner=self.request.user).select_related('car', 'service')
 
 class MaintenanceRequestCreateView(CreateView):
     model = MaintenanceRequest
@@ -187,11 +202,42 @@ class MaintenanceRequestCreateView(CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user  # Pass user to limit cars
+        kwargs['user'] = self.request.user
+
+        car_id = self.request.GET.get('car')
+        if car_id:
+            kwargs.setdefault('initial', {})['car'] = car_id
+
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        services = ServiceType.objects.all()
+        services_by_category = defaultdict(list)
+
+        for service in services:
+            services_by_category[service.category].append(service)
+
+        context['services_by_category'] = dict(services_by_category)
+        return context
+
     def form_valid(self, form):
+        service_id = self.request.POST.get("service")
+        if not service_id:
+            form.add_error(None, "Please select a service.")
+            return self.form_invalid(form)
+
+        form.instance.service_id = service_id
         return super().form_valid(form)
+
+
+class MaintenanceRequestListView(ListView):
+    model = MaintenanceRequest
+    template_name = 'request_list.html'
+    context_object_name = 'requests'
+
+    def get_queryset(self):
+        return MaintenanceRequest.objects.filter(car__owner=self.request.user).select_related('car', 'service')
 
 class DashboardView(TemplateView):
     template_name = 'dashboard.html'

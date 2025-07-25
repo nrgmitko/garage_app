@@ -4,6 +4,14 @@ from django.contrib.auth.models import User
 class ServiceType(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    hp_gain = models.PositiveIntegerField(default=0, help_text="Horsepower gain from this service")
+    CATEGORY_CHOICES = [
+        ('Basic', 'Basic Maintenance'),
+        ('Performance', 'Performance Upgrade'),
+        ('Tuning', 'Custom Tuning'),
+        ('Aesthetic', 'Aesthetic Mod'),
+    ]
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='basic')
 
     def __str__(self):
         return self.name
@@ -14,6 +22,11 @@ class Car(models.Model):
     model = models.CharField(max_length=50)
     year = models.PositiveIntegerField()
     vin = models.CharField(max_length=17, unique=True)
+    image = models.ImageField(upload_to='car_images/', blank=True, null=True)  # ← NEW
+    horsepower = models.PositiveIntegerField(blank=True, null=True)
+    upgrades = models.TextField(blank=True)  # ← NEW FIELD
+
+
 
     def __str__(self):
         return f"{self.make} {self.model} ({self.vin})"

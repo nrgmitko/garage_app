@@ -1,23 +1,55 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Your Cars{% endblock %}
+
 {% block content %}
-<h2>Your Cars</h2>
-<a href="{% url 'car-add' %}" class="btn btn-primary mb-3">Add New Car</a>
+    <div class="container py-4">
+        <h2 class="mb-4">Your Cars</h2>
 
-{% if cars %}
-    <ul class="list-group">
-        {% for car in cars %}
-<li class="list-group-item d-flex justify-content-between align-items-center">
-    {{ car.make }} {{ car.model }} ({{ car.year }}) — VIN: {{ car.vin }}
-    <span>
-        <a href="{% url 'car-edit' car.pk %}" class="btn btn-sm btn-warning me-2">Edit</a>
-        <a href="{% url 'car-delete' car.pk %}" class="btn btn-sm btn-danger">Delete</a>
-    </span>
-</li>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for car in cars %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        {% if car.image %}
+                            <img src="{{ car.image.url }}" class="card-img-top object-fit-cover" style="height: 200px;"
+                                 alt="{{ car.make }} {{ car.model }}">
+                        {% else %}
+                            <img src="{% static 'garage_app/default_car.png' %}" class="card-img-top object-fit-cover"
+                                 style="height: 200px;" alt="Default car image">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ car.make }} {{ car.model }}</h5>
+                            <p class="card-text">
+                                <strong>Year:</strong> {{ car.year }}<br>
+                                <strong>VIN:</strong> {{ car.vin }}<br>
+                                <strong>Horsepower:</strong> {{ car.horsepower }}
+                                {% if car.upgrades %}
+                                    <p><strong>Upgrades:</strong><br>{{ car.upgrades|linebreaks }}</p>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a href="{% url 'car-edit' car.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'car-delete' car.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                            <a href="{% url 'request-add' %}?car={{ car.pk }}"
+                               class="btn btn-success btn-sm">Upgrade</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
 
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No cars found.</p>
-{% endif %}
+            <!-- Add New Car Card -->
+            <div class="col">
+                <a href="{% url 'car-add' %}" class="text-decoration-none text-dark">
+                    <div class="card h-100 border-dashed d-flex align-items-center justify-content-center"
+                         style="min-height: 250px;">
+                        <div class="text-center">
+                            <div class="display-1 text-muted">+</div>
+                            <h5 class="mt-2">Add New Car</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
 {% endblock %}

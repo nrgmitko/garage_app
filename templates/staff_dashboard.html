@@ -25,7 +25,7 @@
             <tr>
                 <td>{{ req.car.owner.username }}</td>
                 <td>{{ req.car.make }} {{ req.car.model }} ({{ req.car.vin }})</td>
-                <td>{{ req.service.name }}</td>
+                <td><strong>{{ req.service.category|title }}</strong> – {{ req.service.name }}</td>
                 <td>{{ req.requested_date }}</td>
                 <td>
                     <select name="status" class="form-select form-select-sm">

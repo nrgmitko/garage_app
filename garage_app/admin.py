@@ -4,7 +4,7 @@ from .models import Car, MaintenanceRequest, ServiceType, Review
 
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'make', 'model', 'year')
+    list_display = ('owner', 'make', 'model', 'year', 'image')
 
 @admin.register(MaintenanceRequest)
 class MaintenanceRequestAdmin(admin.ModelAdmin):
@@ -16,8 +16,10 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
 
 @admin.register(ServiceType)
 class ServiceTypeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'category')
+    list_filter = ('category',)
     search_fields = ('name',)
+
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

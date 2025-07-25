@@ -2,13 +2,33 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h2>Your Dashboard</h2>
-<p>Welcome, {{ user.username }}! This page is for logged-in users only.</p>
+<h2 class="mb-4">Welcome, {{ user.first_name|default:user.username }}</h2>
 
-<hr>
+<div class="row mb-4">
+    <!-- Clickable Stats -->
+    <div class="col-md-4">
+        <a href="{% url 'car-list' %}" class="text-decoration-none">
+            <div class="card text-white bg-primary mb-3 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Your Cars</h5>
+                    <p class="card-text display-6">{{ total_cars }}</p>
+                </div>
+            </div>
+        </a>
+    </div>
 
-<a href="{% url 'car-list' %}" class="btn btn-primary mt-2">Manage Your Cars</a>
-    <a href="{% url 'request-list' %}" class="btn btn-secondary mt-2">View Maintenance Requests</a>
+    <div class="col-md-4">
+        <a href="{% url 'request-list' %}" class="text-decoration-none">
+            <div class="card text-white bg-success mb-3 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Maintenance Requests</h5>
+                    <p class="card-text display-6">{{ total_requests }}</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+
 
 
 {% endblock %}

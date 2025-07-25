@@ -1,33 +1,84 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Welcome to GarageX{% endblock %}
 
 {% block content %}
-<div class="text-center mb-5">
-    <h1>Welcome to GarageX</h1>
-    <p>Your trusted place for reliable car maintenance and service booking.</p>
+
+    <!-- Hero image -->
+<div class="w-100">
+    <img src="{% static 'garage_app/hero.jpg' %}" alt="Garage Hero"
+         class="img-fluid w-100" style="max-height: 400px; object-fit: cover;">
 </div>
 
-<h3 class="mb-3">What Our Customers Say</h3>
+
+<h3 class="mt-5 mb-4 text-center">Explore Our Services</h3>
+
+<div class="row row-cols-1 row-cols-md-3 g-4 text-center">
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="service-img-wrapper">
+        <img src="{% static 'garage_app/service1.jpg' %}" class="service-card-img" alt="Oil Change">
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Basic Maintenance</h5>
+        <p class="card-text">Keep your car in top shape with regular oil changes and inspections.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="service-img-wrapper">
+        <img src="{% static 'garage_app/service2.jpg' %}" class="service-card-img" alt="Performance Tuning">
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Performance Tuning</h5>
+        <p class="card-text">Unleash your engine's full potential with expert tuning services.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="service-img-wrapper">
+        <img src="{% static 'garage_app/service3.jpg' %}" class="service-card-img" alt="Interior Detailing">
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Aesthetic Upgrades</h5>
+        <p class="card-text">Refresh your car’s look with premium interior and exterior detailing.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="w-100 mt-5 mb-5">
+    <img src="{% static 'garage_app/hero2.jpg' %}" alt="Garage Hero"
+         class="img-fluid w-100" style="max-height: 400px; object-fit: cover;">
+</div>
+
+
+<h3 class="mb-4 text-center">What Our Customers Say</h3>
 
 {% if reviews %}
-    <div class="row">
-        {% for r in reviews %}
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ r.user.username }} – {{ r.rating }}★</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">
-    {{ r.request.car.make }} {{ r.request.car.model }} – {{ r.request.car.year }} {{ r.request.service.name }}
-</h6>
-                        <p class="card-text">{{ r.comment|linebreaks }}</p>
-                        <p class="text-muted small">{{ r.created_at|date:"F j, Y H:i" }}</p>
-                    </div>
-                </div>
+<div class="row justify-content-center row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+    {% for r in reviews %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ r.user.username }} – {{ r.rating }}★</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    {{ r.request.car.make }} {{ r.request.car.model }} – {{ r.request.car.year }} {{ r.request.service.name }}
+                </h6>
+                <p class="card-text">{{ r.comment|linebreaks }}</p>
+                <p class="text-muted small">{{ r.created_at|date:"F j, Y H:i" }}</p>
             </div>
-        {% endfor %}
+        </div>
     </div>
+    {% endfor %}
+</div>
 {% else %}
-    <p class="text-muted">No reviews available yet.</p>
+<p class="text-muted text-center">No reviews available yet.</p>
 {% endif %}
-{% endblock %}
 
+{% endblock %}

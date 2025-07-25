@@ -1,56 +1,83 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}GarageApp{% endblock %}</title>
+    <title>{% block title %}GarageX{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link href="{% static 'garage_app/style.css' %}" rel="stylesheet">
 </head>
 
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand" href="{% url 'home' %}">GarageX</a>
-        <div class="d-flex ms-auto">
-            {% if user.is_authenticated %}
-                <span class="navbar-text text-light me-3">
-                    Hello, {{ user.username }}
-                </span>
-                <a class="btn btn-outline-light btn-sm me-2" href="{% url 'profile' %}">Profile</a>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container d-flex justify-content-between align-items-center w-100">
 
-                {% if user.is_staff %}
-                    <a class="btn btn-warning btn-sm me-2" href="{% url 'staff-dashboard' %}">Staff Dashboard</a>
-                {% else %}
-                    <a class="btn btn-outline-light btn-sm me-2" href="{% url 'dashboard' %}">Dashboard</a>
-                {% endif %}
+    <!-- Left: small round logo -->
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+      <img src="{% static 'garage_app/logo.png' %}" alt="GarageX Logo"
+           height="50" class="me-2 bg-white rounded-circle p-1 shadow">
+    </a>
 
-                <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                </form>
-
-            {% else %}
-                <a class="btn btn-outline-light btn-sm me-2" href="{% url 'login' %}">Login</a>
-                <a class="btn btn-light btn-sm" href="{% url 'register' %}">Register</a>
-            {% endif %}
-        </div>
+    <!-- Center: main logo -->
+    <div class="d-none d-lg-block">
+      <img src="{% static 'garage_app/main_logo.png' %}" alt="GarageX Main Logo"
+           style="max-height: 60px;">
     </div>
+
+    <!-- Right: buttons -->
+    <div class="d-flex align-items-center">
+      {% if user.is_authenticated %}
+        <span class="text-light me-3">
+          Hello, <strong>{{ user.username }}</strong>
+        </span>
+
+        <a href="{% url 'profile' %}" class="btn btn-outline-light btn-sm me-2">Profile</a>
+
+        {% if user.is_staff %}
+          <a href="{% url 'staff-dashboard' %}" class="btn btn-warning btn-sm me-2">Staff Panel</a>
+        {% else %}
+          <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
+        {% endif %}
+
+        <form method="post" action="{% url 'logout' %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Login</a>
+        <a href="{% url 'register' %}" class="btn btn-light btn-sm">Register</a>
+      {% endif %}
+    </div>
+
+  </div>
 </nav>
 
-<div class="container mt-4">
+<main class="container py-4">
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                 {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
     {% endif %}
 
     {% block content %}{% endblock %}
-</div>
+</main>
+
+
+
+<footer class="bg-dark text-light mt-5 py-4">
+  <div class="container text-center">
+    <p class="mb-1">&copy; {{ now|date:"Y" }} GarageX. All rights reserved.</p>
+    <p class="mb-0 small">
+    </p>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

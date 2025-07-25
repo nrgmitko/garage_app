@@ -1,10 +1,70 @@
 {% extends 'base.html' %}
 {% block title %}Request Service{% endblock %}
+
 {% block content %}
 <h2>Request Maintenance</h2>
+
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <div class="mb-3">
+        <label for="{{ form.car.id_for_label }}" class="form-label">Select Car</label>
+        {{ form.car }}
+    </div>
+
+    <div class="mb-3">
+        <label for="category" class="form-label">Select Category</label>
+        <select id="category" class="form-select" required>
+            <option value="">-- Choose a category --</option>
+            {% for category in services_by_category.keys %}
+                <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="id_service" class="form-label">Select Service</label>
+        <select name="service" id="id_service" class="form-select" required>
+            <option value="">-- Choose a service --</option>
+            {% for category, services in services_by_category.items %}
+                {% for s in services %}
+                    <option value="{{ s.id }}" data-category="{{ category }}" style="display: none;">
+                        {{ s.name }}
+                    </option>
+                {% endfor %}
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="{{ form.requested_date.id_for_label }}" class="form-label">Preferred Date</label>
+        {{ form.requested_date }}
+    </div>
+
+    <div class="mb-3">
+        <label for="{{ form.notes.id_for_label }}" class="form-label">Additional Notes</label>
+        {{ form.notes }}
+    </div>
+
     <button type="submit" class="btn btn-success">Submit Request</button>
 </form>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const categorySelect = document.getElementById("category");
+    const serviceSelect = document.getElementById("id_service");
+    const allServiceOptions = Array.from(serviceSelect.options);
+
+    categorySelect.addEventListener("change", function () {
+      const selectedCategory = this.value;
+
+      allServiceOptions.forEach(option => {
+        if (!option.value) return;
+        option.style.display = option.dataset.category === selectedCategory ? "block" : "none";
+      });
+
+      serviceSelect.selectedIndex = 0;
+    });
+  });
+</script>
 {% endblock %}
