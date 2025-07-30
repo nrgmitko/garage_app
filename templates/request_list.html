@@ -1,43 +1,68 @@
 {% extends 'base.html' %}
 {% block title %}My Requests{% endblock %}
+
 {% block content %}
-<h2>Your Maintenance Requests</h2>
-<a href="{% url 'request-add' %}" class="btn btn-primary mb-3">New Request</a>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0">Your Maintenance Requests</h2>
+            <a href="{% url 'request-add' %}" class="btn btn-primary">+ New Request</a>
+        </div>
 
-{% if requests %}
-    <ul class="list-group">
-        {% for r in requests %}
-        <li class="list-group-item">
-            {{ r.car }} —
-            {% if r.service %}
-                {{ r.service.name }}
-            {% else %}
-                <em>(No service selected)</em>
-            {% endif %}
-            on {{ r.requested_date|date:"F j, Y" }}<br>
+        {% if requests %}
+            <div class="list-group">
+                {% for r in requests %}
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">
+                                {{ r.car }} —
+                                {% if r.service %}
+                                    {{ r.service.name }}
+                                {% else %}
+                                    <em>(No service selected)</em>
+                                {% endif %}
+                            </h5>
+                            <small class="text-muted">{{ r.requested_date|date:"F j, Y" }}</small>
+                        </div>
 
-            Status: <strong>{{ r.status }}</strong> {% if r.is_approved %}(Approved){% endif %}
+                        <!-- Status -->
+                        <p class="mb-2">
+                            Status:
+                            <span class="badge
+                            {% if r.status == 'Completed' %}bg-success
+                            {% elif r.status == 'Pending' %}bg-warning text-dark
+                            {% elif r.status == 'Cancelled' %}bg-danger
+                            {% else %}bg-secondary{% endif %}">
+                            {{ r.status }}
+                        </span>
+                            {% if r.is_approved %}
+                                <span class="badge bg-info text-dark">Approved</span>
+                            {% endif %}
+                        </p>
 
-            {% if r.status == "Pending" and not r.is_approved %}
-                <div class="mt-2">
-                    <a href="{% url 'request-edit' r.pk %}" class="btn btn-sm btn-warning me-2">Edit</a>
-                    <a href="{% url 'request-delete' r.pk %}" class="btn btn-sm btn-danger">Delete</a>
-                </div>
-            {% endif %}
+                        <!-- Edit/Delete (Pending + Not Approved) -->
+                        {% if r.status == "Pending" and not r.is_approved %}
+                            <div class="mt-2">
+                                <a href="{% url 'request-edit' r.pk %}" class="btn btn-sm btn-warning me-2">Edit</a>
+                                <a href="{% url 'request-delete' r.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            </div>
+                        {% endif %}
 
-            {% if r.status == "Completed" and r.is_approved %}
-                {% if not r.review_set.exists %}
-                    <div class="mt-2">
-                        <a href="{% url 'request-review' r.pk %}" class="btn btn-sm btn-info">Leave a Review</a>
+                        <!-- Review Option -->
+                        {% if r.status == "Completed" and r.is_approved %}
+                            {% if not r.review_set.exists %}
+                                <div class="mt-2">
+                                    <a href="{% url 'request-review' r.pk %}" class="btn btn-sm btn-info">Leave a
+                                        Review</a>
+                                </div>
+                            {% else %}
+                                <p class="text-success mt-2 mb-0">✓ Review Submitted</p>
+                            {% endif %}
+                        {% endif %}
                     </div>
-                {% else %}
-                    <p class="text-success mt-2">✓ Review Submitted</p>
-                {% endif %}
-            {% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No requests yet.</p>
-{% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-3">You have no maintenance requests yet.</div>
+        {% endif %}
+    </div>
 {% endblock %}

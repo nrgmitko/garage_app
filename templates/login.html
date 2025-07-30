@@ -10,15 +10,13 @@
       <small class="text-muted">Access your account</small>
     </div>
     <div class="card-body px-4 py-3">
-      <form method="post">
+      <form method="post" class="login-form">
         {% csrf_token %}
 
         <!-- Username or Email -->
         <div class="mb-3">
           <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-          <div class="input-group">
-            {{ form.username }}
-          </div>
+          {{ form.username }}
           {% for error in form.username.errors %}
             <div class="text-danger small mt-1">{{ error }}</div>
           {% endfor %}
@@ -27,9 +25,7 @@
         <!-- Password -->
         <div class="mb-3">
           <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-          <div class="input-group">
-            {{ form.password }}
-          </div>
+          {{ form.password }}
           {% for error in form.password.errors %}
             <div class="text-danger small mt-1">{{ error }}</div>
           {% endfor %}

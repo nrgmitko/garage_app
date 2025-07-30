@@ -2,69 +2,106 @@
 {% block title %}Request Service{% endblock %}
 
 {% block content %}
-<h2>Request Maintenance</h2>
+    <div class="container mt-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="mb-4">{{ edit_mode|yesno:"Edit Maintenance Request,Request Maintenance" }}</h2>
 
-<form method="post">
-    {% csrf_token %}
+                <form method="post">
+                    {% csrf_token %}
 
-    <div class="mb-3">
-        <label for="{{ form.car.id_for_label }}" class="form-label">Select Car</label>
-        {{ form.car }}
+                    <!-- Car Dropdown -->
+                    <div class="mb-3">
+                        <label for="{{ form.car.id_for_label }}" class="form-label">Select Car</label>
+                        {{ form.car }}
+                    </div>
+
+                    <!-- Category + Service -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">Select Category</label>
+                            <select id="category" class="form-select" required>
+                                <option value="">-- Choose a category --</option>
+                                {% for category in services_by_category.keys %}
+                                    <option value="{{ category }}"
+                                            {% if form.instance.service and form.instance.service.category == category %}selected{% endif %}>
+                                        {{ category }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="id_service" class="form-label">Select Service</label>
+                            <select name="service" id="id_service" class="form-select" required>
+                                <option value="">-- Choose a service --</option>
+                                {% for category, services in services_by_category.items %}
+                                    {% for s in services %}
+                                        <option value="{{ s.id }}"
+                                                data-category="{{ category }}"
+                                                style="display: none;"
+                                                {% if form.instance.service_id == s.id %}selected{% endif %}>
+                                            {{ s.name }}
+                                        </option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="mb-3">
+                        <label for="{{ form.requested_date.id_for_label }}" class="form-label">Preferred Date</label>
+                        {{ form.requested_date }}
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-4">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">Additional Notes</label>
+                        <textarea name="{{ form.notes.name }}"
+                                  id="{{ form.notes.id_for_label }}"
+                                  class="form-control"
+                                  rows="5"
+                                  placeholder="Describe any requests...">{{ form.notes.value }}</textarea>
+                    </div>
+
+
+                    <!-- Submit -->
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-success">
+                            {{ edit_mode|yesno:"Update Request,Submit Request" }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label for="category" class="form-label">Select Category</label>
-        <select id="category" class="form-select" required>
-            <option value="">-- Choose a category --</option>
-            {% for category in services_by_category.keys %}
-                <option value="{{ category }}">{{ category }}</option>
-            {% endfor %}
-        </select>
-    </div>
+    <!-- Script: Category to Service Filter -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const categorySelect = document.getElementById("category");
+            const serviceSelect = document.getElementById("id_service");
+            const serviceOptions = Array.from(serviceSelect.options);
 
-    <div class="mb-3">
-        <label for="id_service" class="form-label">Select Service</label>
-        <select name="service" id="id_service" class="form-select" required>
-            <option value="">-- Choose a service --</option>
-            {% for category, services in services_by_category.items %}
-                {% for s in services %}
-                    <option value="{{ s.id }}" data-category="{{ category }}" style="display: none;">
-                        {{ s.name }}
-                    </option>
-                {% endfor %}
-            {% endfor %}
-        </select>
-    </div>
+            function filterServices() {
+                const selectedCategory = categorySelect.value;
+                serviceOptions.forEach(option => {
+                    if (!option.value) return;
+                    option.style.display = option.dataset.category === selectedCategory ? "block" : "none";
+                });
+                serviceSelect.selectedIndex = 0;
+            }
 
-    <div class="mb-3">
-        <label for="{{ form.requested_date.id_for_label }}" class="form-label">Preferred Date</label>
-        {{ form.requested_date }}
-    </div>
+            const selectedService = serviceSelect.querySelector("option[selected]");
+            const selectedCategory = selectedService?.dataset.category;
 
-    <div class="mb-3">
-        <label for="{{ form.notes.id_for_label }}" class="form-label">Additional Notes</label>
-        {{ form.notes }}
-    </div>
+            if (selectedCategory) {
+                categorySelect.value = selectedCategory;
+                filterServices();
+            }
 
-    <button type="submit" class="btn btn-success">Submit Request</button>
-</form>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const categorySelect = document.getElementById("category");
-    const serviceSelect = document.getElementById("id_service");
-    const allServiceOptions = Array.from(serviceSelect.options);
-
-    categorySelect.addEventListener("change", function () {
-      const selectedCategory = this.value;
-
-      allServiceOptions.forEach(option => {
-        if (!option.value) return;
-        option.style.display = option.dataset.category === selectedCategory ? "block" : "none";
-      });
-
-      serviceSelect.selectedIndex = 0;
-    });
-  });
-</script>
+            categorySelect.addEventListener("change", filterServices);
+        });
+    </script>
 {% endblock %}

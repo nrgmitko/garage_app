@@ -1,11 +1,77 @@
 {% extends 'base.html' %}
 {% block title %}Add Car{% endblock %}
-{% block content %}
-<h2>Add a New Car</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
 
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h3 class="mb-4 text-center">Add a New Car</h3>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Make -->
+                        <div class="mb-3">
+                            <label for="{{ form.make.id_for_label }}" class="form-label">Make</label>
+                            {{ form.make }}
+                        </div>
+
+                        <!-- Model -->
+                        <div class="mb-3">
+                            <label for="{{ form.model.id_for_label }}" class="form-label">Model</label>
+                            {{ form.model }}
+                        </div>
+
+                        <!-- Year -->
+                        <div class="mb-3">
+                            <label for="{{ form.year.id_for_label }}" class="form-label">Year</label>
+                            {{ form.year }}
+                        </div>
+
+                        <!-- VIN -->
+                        {% if form.vin %}
+                        <div class="mb-3">
+                            <label for="{{ form.vin.id_for_label }}" class="form-label">VIN</label>
+                            {{ form.vin }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Horsepower -->
+                        {% if form.horsepower %}
+                        <div class="mb-3">
+                            <label for="{{ form.horsepower.id_for_label }}" class="form-label">Horsepower</label>
+                            {{ form.horsepower }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Upgrades -->
+                        <div class="mb-4">
+                            <label for="{{ form.upgrades.id_for_label }}" class="form-label">Upgrades</label>
+                            <textarea name="{{ form.upgrades.name }}"
+                                      id="{{ form.upgrades.id_for_label }}"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Example: Turbo install, ECU tune, exhaust mods...">{{ form.upgrades.value }}</textarea>
+                        </div>
+
+                        <!-- Car Image -->
+                        {% if form.image %}
+                        <div class="mb-3">
+                            <label class="form-label">Car Image</label>
+                            {{ form.image }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Submit -->
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn btn-dark px-4">Save Car</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

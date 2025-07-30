@@ -6,13 +6,15 @@ from .models import Car, MaintenanceRequest, ServiceType, Review
 class CarAdmin(admin.ModelAdmin):
     list_display = ('owner', 'make', 'model', 'year', 'image')
 
+
 @admin.register(MaintenanceRequest)
 class MaintenanceRequestAdmin(admin.ModelAdmin):
     list_display = ('car', 'service', 'requested_date', 'status', 'is_approved')
     list_filter = ('status', 'is_approved', 'service')
     search_fields = ('car__vin', 'car__make', 'car__model')
     ordering = ('-requested_date',)
-    list_editable = ('status', 'is_approved')  # ✅ inline editable
+    list_editable = ('status', 'is_approved')
+
 
 @admin.register(ServiceType)
 class ServiceTypeAdmin(admin.ModelAdmin):

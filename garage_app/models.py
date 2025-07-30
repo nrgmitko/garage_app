@@ -11,10 +11,11 @@ class ServiceType(models.Model):
         ('Tuning', 'Custom Tuning'),
         ('Aesthetic', 'Aesthetic Mod'),
     ]
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='basic')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='Basic')
 
     def __str__(self):
         return self.name
+
 
 class Car(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -22,14 +23,13 @@ class Car(models.Model):
     model = models.CharField(max_length=50)
     year = models.PositiveIntegerField()
     vin = models.CharField(max_length=17, unique=True)
-    image = models.ImageField(upload_to='car_images/', blank=True, null=True)  # ← NEW
+    image = models.ImageField(upload_to='car_images/', blank=True, null=True)
     horsepower = models.PositiveIntegerField(blank=True, null=True)
-    upgrades = models.TextField(blank=True)  # ← NEW FIELD
-
-
+    upgrades = models.TextField(blank=True)
 
     def __str__(self):
         return f"{self.make} {self.model} ({self.vin})"
+
 
 class MaintenanceRequest(models.Model):
     STATUS_CHOICES = [

@@ -1,14 +1,14 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-
 from .models import Car, MaintenanceRequest, Review
+from django.utils.timezone import now
 
 
 class CarForm(forms.ModelForm):
     class Meta:
         model = Car
-        fields = ['make', 'model', 'year', 'vin','horsepower','upgrades', 'image']  # ← include 'image'
+        fields = ['make', 'model', 'year', 'vin', 'horsepower', 'upgrades', 'image']
         widgets = {
             'year': forms.NumberInput(attrs={'min': 1900, 'max': 2100}),
         }
@@ -33,6 +33,13 @@ class MaintenanceRequestForm(forms.ModelForm):
         if initial_car_id:
             self.fields['car'].initial = initial_car_id
 
+        self.fields['requested_date'].widget.attrs['min'] = now().date().isoformat()
+
+    def clean_requested_date(self):
+        selected_date = self.cleaned_data['requested_date']
+        if selected_date < now().date():
+            raise forms.ValidationError("You cannot choose a past date.")
+        return selected_date
 
 
 class ReviewForm(forms.ModelForm):
@@ -49,8 +56,6 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
-
-
 
 
 class CustomUserCreationForm(UserCreationForm):
